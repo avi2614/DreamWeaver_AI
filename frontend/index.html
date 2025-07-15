@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DreamWeaver AI</title>
+
+  <!-- ✅ Favicon Link -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- ✅ Tailwind CDN (for development only) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ✅ Custom Theme (Optional) -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4f46e5', // Indigo
+            accent: '#06b6d4'   // Cyan
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans">
+
+  <div class="max-w-3xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg">
+    <h1 class="text-4xl font-bold text-center mb-6 text-primary">
+      🎨 DreamWeaver AI
+    </h1>
+
+    <textarea id="prompt"
+      placeholder="Describe your dream idea…"
+      class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:outline-primary resize-none shadow-sm mb-4"
+    ></textarea>
+
+    <div class="flex items-center justify-between mb-4">
+      <select id="mode" class="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-primary">
+        <option value="story">📖 Story</option>
+        <option value="comic">🖼️ Comic</option>
+        <option value="game">🎮 Game</option>
+      </select>
+
+      <button onclick="generate()"
+        class="bg-primary hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition">
+        ✨ Generate
+      </button>
+    </div>
+
+    <div id="output" class="mt-6 space-y-4">
+      <!-- Rendered images, story, audio will appear here -->
+    </div>
+  </div>
+
+  <!-- ✅ Link to JS -->
+  <script src="./scripts/main.js"></script>
+</body>
+</html>
