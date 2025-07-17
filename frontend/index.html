@@ -4,58 +4,172 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DreamWeaver AI</title>
-
-  <!-- ✅ Favicon Link -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-
-  <!-- ✅ Tailwind CDN (for development only) -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- ✅ Custom Theme (Optional) -->
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#4f46e5', // Indigo
-            accent: '#06b6d4'   // Cyan
-          }
-        }
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof tailwind === 'undefined') {
+        alert('Tailwind CSS failed to load. Please check your internet connection or CDN access.');
+      } else {
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                primary: '#0ea5e9',
+                accent: '#fbbf24',
+                bg: '#0f172a',
+                card: '#1e293b',
+                border: '#334155',
+                text: '#f1f5f9',
+                subtext: '#94a3b8',
+                glass: 'rgba(30,41,59,0.7)',
+              },
+              fontFamily: {
+                display: ['Poppins', 'Segoe UI', 'sans-serif'],
+                body: ['Inter', 'Segoe UI', 'sans-serif'],
+              },
+              boxShadow: {
+                glass: '0 8px 32px 0 rgba(0,0,0,0.45)',
+              },
+              backgroundImage: {
+                'animated-gradient': 'linear-gradient(120deg, #0ea5e9 0%, #fbbf24 100%)',
+              },
+              animation: {
+                'gradient-x': 'gradient-x 6s ease-in-out infinite',
+              },
+              keyframes: {
+                'gradient-x': {
+                  '0%, 100%': { 'background-position': '0% 50%' },
+                  '50%': { 'background-position': '100% 50%' },
+                },
+              },
+            },
+          },
+        };
       }
-    }
+    });
   </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    .glass {
+      background: rgba(30,41,59,0.7);
+      box-shadow: 0 8px 32px 0 rgba(0,0,0,0.45);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1.5px solid rgba(51,65,85,0.25);
+    }
+    .animated-border {
+      background: linear-gradient(120deg, #0ea5e9, #fbbf24, #0ea5e9);
+      background-size: 200% 200%;
+      animation: gradient-x 6s ease-in-out infinite;
+      border-radius: 2rem;
+      padding: 2px;
+    }
+    @keyframes gradient-x {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .floating-label {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    .floating-label textarea {
+      padding-top: 1.75rem;
+    }
+    .floating-label label {
+      position: absolute;
+      left: 1.25rem;
+      top: 1.1rem;
+      color: #94a3b8;
+      font-size: 1rem;
+      pointer-events: none;
+      transition: 0.2s;
+    }
+    .floating-label textarea:focus + label,
+    .floating-label textarea:not(:placeholder-shown) + label {
+      top: 0.3rem;
+      left: 1.1rem;
+      font-size: 0.85rem;
+      color: #0ea5e9;
+      background: rgba(30,41,59,0.7);
+      padding: 0 0.3em;
+      border-radius: 0.3em;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-900 font-sans">
-
-  <div class="max-w-3xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg">
-    <h1 class="text-4xl font-bold text-center mb-6 text-primary">
-      🎨 DreamWeaver AI
-    </h1>
-
-    <textarea id="prompt"
-      placeholder="Describe your dream idea…"
-      class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:outline-primary resize-none shadow-sm mb-4"
-    ></textarea>
-
-    <div class="flex items-center justify-between mb-4">
-      <select id="mode" class="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-primary">
-        <option value="story">📖 Story</option>
-        <option value="comic">🖼️ Comic</option>
-        <option value="game">🎮 Game</option>
-      </select>
-
-      <button onclick="generate()"
-        class="bg-primary hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition">
-        ✨ Generate
-      </button>
-    </div>
-
-    <div id="output" class="mt-6 space-y-4">
-      <!-- Rendered images, story, audio will appear here -->
+<body class="dark bg-bg text-text font-body min-h-screen flex items-center justify-center relative overflow-x-hidden">
+  <!-- Animated background blobs -->
+  <div class="bg-blob bg-blob1"></div>
+  <div class="bg-blob bg-blob2"></div>
+  <div class="bg-blob bg-blob3"></div>
+  <!-- Animated background -->
+  <div class="fixed inset-0 -z-10 bg-gradient-to-br from-primary/30 via-bg/80 to-accent/20 blur-2xl opacity-80 animate-gradient-x"></div>
+  <div class="w-full max-w-2xl mx-auto mt-10 animated-border">
+    <div class="glass rounded-3xl shadow-2xl p-8">
+      <h1 class="font-display text-5xl font-extrabold text-center mb-6 text-primary tracking-tight drop-shadow-lg">
+        🪄 DreamWeaver <span class="text-accent">AI</span>
+      </h1>
+      <div class="deepai-tabs flex w-full mb-6 justify-center gap-4">
+        <button class="tab-btn tab-box active" data-tab="story">STORY</button>
+        <button class="tab-btn tab-box" data-tab="image">IMAGE</button>
+        <button class="tab-btn tab-box" data-tab="game">GAME</button>
+      </div>
+      <div id="tab-story" class="tab-content">
+        <div class="floating-label">
+          <textarea id="prompt-story" placeholder=" "
+            class="w-full h-32 p-4 bg-bg border border-border rounded-xl focus:outline-primary resize-none shadow-inner text-text placeholder:subtext transition-all duration-200"
+          ></textarea>
+          <label for="prompt-story">Describe your dream story…</label>
+        </div>
+        <button onclick="generate('story', event)"
+          class="bg-primary hover:bg-accent text-bg font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 w-full mb-2">
+          ✨ Generate Story
+        </button>
+        <div id="output-story" class="deepai-output mt-4"></div>
+      </div>
+      <div id="tab-image" class="tab-content hidden">
+        <div class="floating-label">
+          <textarea id="prompt-image" placeholder=" "
+            class="w-full h-32 p-4 bg-bg border border-border rounded-xl focus:outline-primary resize-none shadow-inner text-text placeholder:subtext transition-all duration-200"
+          ></textarea>
+          <label for="prompt-image">Describe your dream image…</label>
+        </div>
+        <button onclick="generate('image', event)"
+          class="bg-primary hover:bg-accent text-bg font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 w-full mb-2">
+          ✨ Generate Image
+        </button>
+        <div id="output-image" class="deepai-output mt-4"></div>
+      </div>
+      <div id="tab-game" class="tab-content hidden">
+        <div class="floating-label">
+          <textarea id="prompt-game" placeholder=" "
+            class="w-full h-32 p-4 bg-bg border border-border rounded-xl focus:outline-primary resize-none shadow-inner text-text placeholder:subtext transition-all duration-200"
+          ></textarea>
+          <label for="prompt-game">Describe your dream mini-game…</label>
+        </div>
+        <div class="mb-4 w-full">
+          <label for="language-select" class="block mb-1 text-sm text-deepai">Select language:</label>
+          <select id="language-select" class="deepai-input w-full" style="padding-top:0.5rem;">
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="html">HTML (with JS)</option>
+            <option value="java">Java</option>
+            <option value="csharp">C#</option>
+            <option value="c">C</option>
+            <option value="cpp">C++</option>
+          </select>
+        </div>
+        <button onclick="generate('game', event)"
+          class="bg-primary hover:bg-accent text-bg font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 w-full mb-2">
+          ✨ Generate Game Code
+        </button>
+        <div id="output-game" class="deepai-output mt-4"></div>
+        <div id="game-copy-msg" class="text-xs text-deepai mt-2 hidden">Copy and run this code in your own environment to play the game.</div>
+      </div>
     </div>
   </div>
-
-  <!-- ✅ Link to JS -->
   <script src="./scripts/main.js"></script>
 </body>
 </html>

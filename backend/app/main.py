@@ -38,11 +38,13 @@ async def dream(request: Request):
         body = await request.json()
         prompt = body.get("prompt", "")
         mode = body.get("mode", "story")
+        word_count = body.get("word_count")
+        language = body.get("language")
 
         if not prompt:
             return {"error": "No prompt provided."}
 
-        response = await agent.run(prompt, mode)
+        response = await agent.run(prompt, mode, word_count, language)
         return response
     except Exception as e:
         import traceback

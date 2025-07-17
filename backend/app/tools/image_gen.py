@@ -1,25 +1,47 @@
-import os, httpx
+import os, httpx, base64
 
-HF = os.getenv("HF_SD_ENDPOINT")
-HEADERS = {"Authorization": f"Bearer {os.getenv('HF_TOKEN')}"}
-print("[DEBUG] HF_SD_ENDPOINT:", HF)
-print("[DEBUG] HF_TOKEN:", os.getenv('HF_TOKEN'))
+REPLICATE_API_TOKEN = "REPLICATE_API_TOKEN"  # Provided by user
+REPLICATE_MODEL = "fast-flux-trainer"
+# If you have a version ID, set it here. Otherwise, leave as None and use only the model slug.
+REPLICATE_VERSION = None  # e.g., "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 async def generate_image(prompt: str):
-    payload = {"inputs": prompt, "options": {"num_inference_steps": 30}}
+    url = "https://api.replicate.com/v1/predictions"
+    headers = {
+        "Authorization": f"Token {REPLICATE_API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "version": REPLICATE_VERSION,
+        "input": {"prompt": prompt}
+    } if REPLICATE_VERSION else {
+        "model": REPLICATE_MODEL,
+        "input": {"prompt": prompt}
+    }
     try:
-        async with httpx.AsyncClient(timeout=60) as client:
-            r = await client.post(HF, headers=HEADERS, json=payload)
-            print("[DEBUG] HuggingFace response status:", r.status_code)
-            print("[DEBUG] HuggingFace response text:", r.text[:500])
+        async with httpx.AsyncClient(timeout=120) as client:
+            r = await client.post(url, headers=headers, json=payload)
             r.raise_for_status()
-            data = r.json()
-            if "generated_images" in data and data["generated_images"]:
-                image_b64 = data["generated_images"][0]
-                return f"data:image/png;base64,{image_b64}"
-            else:
-                print("[ERROR] No generated_images in HuggingFace response.")
-                return "[ERROR] No image generated. Check your HuggingFace quota, token, or model access."
+            prediction = r.json()
+            prediction_id = prediction["id"]
+            # Poll for completion
+            status = prediction["status"]
+            while status not in ("succeeded", "failed", "canceled"):
+                poll = await client.get(f"{url}/{prediction_id}", headers=headers)
+                poll.raise_for_status()
+                prediction = poll.json()
+                status = prediction["status"]
+            if status != "succeeded":
+                return f"[ERROR] Replicate image generation failed: {status}"
+            image_url = prediction["output"][0] if prediction["output"] else None
+            if not image_url:
+                return "[ERROR] No image returned from Replicate."
+            # Download image and convert to data URL
+            img_resp = await client.get(image_url)
+            img_resp.raise_for_status()
+            img_bytes = img_resp.content
+            img_b64 = base64.b64encode(img_bytes).decode()
+            return f"data:image/png;base64,{img_b64}"
     except Exception as e:
-        print(f"[ERROR] Exception in generate_image: {e}")
+        print(f"[ERROR] Exception in generate_image (Replicate): {e}")
         return f"[ERROR] Image generation failed: {e}"
